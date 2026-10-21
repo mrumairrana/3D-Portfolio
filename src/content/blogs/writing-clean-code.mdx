@@ -1,0 +1,129 @@
+---
+title: "Writing Clean Code: Principles That Make a Difference"
+publishedAt: "2026-10-21"
+summary: "Practical principles for writing clean, readable, and maintainable code that your future self and teammates will appreciate."
+author: "Umair Rana"
+tags: ["clean-code", "best-practices", "software-engineering", "javascript", "typescript"]
+---
+
+# Writing Clean Code: Principles That Make a Difference
+
+Clean code isn't about following a strict set of rules. It's about writing code that is easy to read, easy to understand, and easy to change. When code is clean, bugs are easier to find, new features are easier to add, and collaborating with teammates becomes smoother.
+
+Over time, I've found that a handful of principles make the biggest difference in day-to-day development. Here are the ones I keep coming back to.
+
+## Readability First
+
+Code is read far more often than it is written. A function or component might be written once but read dozens of times — by you, by a teammate, or by your future self six months down the line.
+
+Good naming is the foundation of readable code. Choose names that reveal intent:
+
+```tsx
+// Hard to understand
+function calc(d: number, t: string): number {
+  if (t === "full") {
+    return d * 1.15;
+  }
+  return d;
+}
+
+// Easy to understand
+function calculateTotal(price: number, planType: string): number {
+  if (planType === "full") {
+    return price * 1.15;
+  }
+  return price;
+}
+```
+
+Descriptive names remove the need for comments that explain *what* the code does. Comments should explain *why* a decision was made, not restate the obvious.
+
+## Small, Focused Functions
+
+A function should do one thing and do it well. When a function grows beyond a single responsibility, it becomes harder to test, harder to reuse, and harder to reason about.
+
+If you find yourself writing a function that is 50+ lines long, ask: "Can I break this into smaller, named pieces?" Extracting logic into smaller functions gives each piece a name, which acts as documentation.
+
+```tsx
+// Does too much
+function processOrder(order: Order) {
+  validateOrder(order);
+  calculateTotal(order);
+  applyDiscount(order);
+  saveToDatabase(order);
+  sendEmailConfirmation(order);
+  notifyInventory(order);
+}
+
+// Better — each step has a clear name
+function processOrder(order: Order) {
+  validateOrder(order);
+  const total = calculateTotal(order);
+  applyDiscount(order, total);
+  persistOrder(order);
+  notifyStakeholders(order);
+}
+```
+
+## Avoid Deep Nesting
+
+Deeply nested conditionals and loops make code difficult to follow. A common technique to reduce nesting is the **guard clause**: handle edge cases early and return, so the main logic flows at a single indentation level.
+
+```tsx
+// Deeply nested
+function handleRequest(req: Request) {
+  if (req.user) {
+    if (req.user.isAuthenticated) {
+      if (req.user.hasPermission("edit")) {
+        // main logic
+      }
+    }
+  }
+}
+
+// Guard clauses
+function handleRequest(req: Request) {
+  if (!req.user) return;
+  if (!req.user.isAuthenticated) return;
+  if (!req.user.hasPermission("edit")) return;
+
+  // main logic — no nesting
+}
+```
+
+The happy path becomes the most visible part of the function, and error cases are handled up front.
+
+## Favor Composition Over Cleverness
+
+It's tempting to write clever one-liners or deeply chained method calls. Clever code is fun to write, but it's often expensive to read and maintain.
+
+Prefer explicit, straightforward code over clever abstractions. If a clever solution requires a comment to explain it, it's probably not the right solution.
+
+```tsx
+// Clever but hard to parse
+const result = data.filter((x) => x.active).map((x) => x.id).reduce((a, b) => a + b, 0);
+
+// Clear and explicit
+const activeIds = data.filter((item) => item.active).map((item) => item.id);
+const result = activeIds.reduce((sum, id) => sum + id, 0);
+```
+
+## Tests as Documentation
+
+Clean code and good tests go hand in hand. Tests don't just prevent regressions — they serve as living documentation showing how code is intended to be used.
+
+When tests are easy to write, it's usually a sign that your code is well-structured. If testing a function requires mocking half your application, that function likely has too many responsibilities.
+
+## Refactor Ruthlessly
+
+Clean code isn't written in one pass. It's written, reviewed, and refined. Refactoring is not a separate activity — it's part of writing code.
+
+Take time to rename variables that don't quite fit, extract duplicated logic, and remove dead code. Small, continuous improvements keep the codebase healthy over the long term.
+
+## Conclusion
+
+Clean code is code that respects the next person who has to read it — whether that's a teammate or your future self. It's not about perfection; it's about making intentional choices that favor clarity over cleverness, simplicity over complexity, and maintainability over speed of writing.
+
+Start small: pick one principle from this list and apply it to your next pull request. Over time, these habits compound into a codebase that is pleasant to work with.
+
+Thanks for reading! If you have your own clean-code principles, I'd love to hear them. 🚀
