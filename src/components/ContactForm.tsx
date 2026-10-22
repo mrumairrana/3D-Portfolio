@@ -9,6 +9,7 @@ import { useToast } from "./ui/use-toast";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import emailjs from "@emailjs/browser";
 
 const formSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
@@ -45,15 +46,18 @@ const ContactForm = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email, message }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || `Request failed (${res.status})`);
-      }
+      const serviceId = process.env.NEXT_PUBLIC_SERVICE_ID || "service_k702mmc";
+      const templateId = process.env.NEXT_PUBLIC_TEMPLATE_ID || "template_gu1r2lc";
+      const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY || "TmbtxEsqFkLYV6VNB";
+
+      const templateParams = {
+        from_name: fullName,
+        from_email: email,
+        message: message,
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
       toast({
         title: "Thank you!",
         description: "I'll get back to you as soon as possible.",
@@ -69,6 +73,7 @@ const ContactForm = () => {
         clearTimeout(timer);
       }, 1000);
     } catch (err) {
+      console.error("EmailJS error:", err);
       toast({
         title: "Error",
         description: "Something went wrong! Please try again.",
